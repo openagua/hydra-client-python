@@ -52,11 +52,14 @@ class JSONConnection(BaseConnection):
         if 'user_id' not in kwargs and self.user_id is not None:
             kwargs['user_id'] = self.user_id
 
-        # Convert the arguments to JSON objects
+        # Convert the arguments to Hydra objects
         json_obj_args = list(self.args_to_json_object(*args))
 
+        # Convert the keyword argument values to Hydra objects
+        json_obj_kwargs = {key: self.arg_to_json_object(arg) for key, arg in kwargs.items()}
+
         # Call the HB function
-        ret = func(*json_obj_args, **kwargs)
+        ret = func(*json_obj_args, **json_obj_kwargs)
         for o in self.args_to_json_object(ret):
             if self.autocommit is True:
                 hb.db.commit_transaction()
