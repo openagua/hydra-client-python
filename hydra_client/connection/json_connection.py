@@ -56,10 +56,14 @@ class JSONConnection(BaseConnection):
         json_obj_args = list(self.args_to_json_object(*args))
 
         # Convert the keyword argument values to Hydra objects
-        json_obj_kwargs = {key: self.arg_to_json_object(arg) for key, arg in kwargs.items()}
+        # json_obj_kwargs = {key: self.arg_to_json_object(arg) for key, arg in kwargs.items()}
 
         # Call the HB function
-        ret = func(*json_obj_args, **json_obj_kwargs)
+        try:
+            ret = func(*json_obj_args, **kwargs)
+        except Exception as err:
+            hb.rollback_transaction()
+            return 'Error. Invalid transaction for {}'.format(func_name)
         for o in self.args_to_json_object(ret):
             if self.autocommit is True:
                 hb.db.commit_transaction()
