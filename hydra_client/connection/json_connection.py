@@ -63,7 +63,7 @@ class JSONConnection(BaseConnection):
             ret = func(*json_obj_args, **kwargs)
         except Exception as err:
             hb.rollback_transaction()
-            return 'Error. Invalid transaction for {}'.format(func_name)
+            return str(err)
         for o in self.args_to_json_object(ret):
             if self.autocommit is True:
                 hb.db.commit_transaction()
